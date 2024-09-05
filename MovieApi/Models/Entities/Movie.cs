@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using MovieApi.Validations;
+using System.IO;
 
 namespace MovieApi.Models.Entities
 {
@@ -10,6 +11,7 @@ namespace MovieApi.Models.Entities
 
         public int Rating { get; set; }
 
+        [DateLimit]
         public int ReleaseDate { get; set; }
 
         public string Description { get; set; }

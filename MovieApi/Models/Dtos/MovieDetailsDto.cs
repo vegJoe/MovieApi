@@ -1,4 +1,6 @@
-﻿namespace MovieApi.Models.Dtos
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace MovieApi.Models.Dtos
 {
     public record MovieActorsDto(string Name, int DateOfBirth);
     public record MovieGenresDto(string Name);

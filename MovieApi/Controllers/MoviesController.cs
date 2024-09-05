@@ -29,7 +29,13 @@ namespace MovieApi.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Movie>>> GetMovie()
         {
-            var movies = await _db.Movie.Include(m => m.Genres).Include(m => m.Director).ThenInclude(d => d.ContactInformation).Include(m => m.Actors).ToListAsync();
+            var movies = await _db.Movie
+                .Include(m => m.Genres)
+                .Include(m => m.Director)
+                    .ThenInclude(d => d.ContactInformation)
+                .Include(m => m.Actors)
+                .ToListAsync();
+
             var movieDto = _mapper.Map<ICollection<MovieDetailsDto>>(movies);
 
             return Ok(movieDto);
@@ -39,14 +45,20 @@ namespace MovieApi.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<Movie>> GetMovie(int id)
         {
-            var movie = await _db.Movie.FindAsync(id);
+            var movie = await _db.Movie
+                .Include(m => m.Director).ThenInclude(d => d.ContactInformation)
+                .Include(m => m.Genres).Where(g => g.Id == id)
+                .Include(m => m.Actors).Where(a => a.Id == id)
+                .FirstOrDefaultAsync(m => m.Id == id);
+
+            var movieDto = _mapper.Map<MovieDetailsDto>(movie);
 
             if (movie == null)
             {
                 return NotFound();
             }
 
-            return movie;
+            return Ok(movieDto);
         }
 
         // PUT: api/Movies/5

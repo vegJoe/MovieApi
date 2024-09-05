@@ -28,11 +28,6 @@ namespace MovieApi.Controllers
         [HttpGet("title/{title}")]
         public async Task<ActionResult<IEnumerable<MovieDetailsDto>>> GetMovieByTitle(string title)
         {
-            //var allMovies = await _db.Movie.ToListAsync();  // Hämta alla filmer
-            //var foundMovies = allMovies
-            //    .Where(x => x.Title.Contains(title, StringComparison.OrdinalIgnoreCase))
-            //    .ToList();
-
             var foundMovies = await _db.Movie
                 .Where(x => x.Title.ToLower().Contains(title.ToLower()))
                 .ToListAsync();
@@ -62,6 +57,23 @@ namespace MovieApi.Controllers
             }
 
             var dto = _mapper.Map<IEnumerable<MovieDetailsDto>>(movies);
+
+            return Ok(dto);
+        }
+
+        [HttpGet("multipe/{actor}/{releaseDate}")]
+        public async Task<ActionResult<IEnumerable<MovieDetailsDto>>> GetMovieByMultiple(string actor, int releaseDate)
+        {
+            var foundMovies = await _db.Movie
+                .Where(m => m.ReleaseDate == releaseDate && m.Actors.Any(a => a.Name.Contains(actor))).ToListAsync();
+
+
+            if (foundMovies == null)
+            {
+                return NotFound();
+            }
+
+            var dto = _mapper.Map<ICollection<MovieDetailsDto>>(foundMovies);
 
             return Ok(dto);
         }
