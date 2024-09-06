@@ -13,6 +13,8 @@ namespace MovieApi.MappingProfile
             .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.Director.ContactInformation.Email))
             .ForMember(dest => dest.Phonenumber, opt => opt.MapFrom(src => src.Director.ContactInformation.Phonenumber)).ReverseMap();
 
+
+            CreateMap<NewMovieDto, Movie>();
             CreateMap<Actor, ActorsDto>().ReverseMap();
             CreateMap<Genre, GenreDto>().ReverseMap();
             CreateMap<Director, DirectorDto>().ReverseMap();

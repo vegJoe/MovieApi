@@ -1,14 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Threading.Tasks;
 using AutoMapper;
+using Azure;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MovieApi.Data;
 using MovieApi.Models.Dtos;
 using MovieApi.Models.Entities;
+using Microsoft.AspNetCore.JsonPatch;
 
 namespace MovieApi.Controllers
 {
@@ -92,15 +95,71 @@ namespace MovieApi.Controllers
             return NoContent();
         }
 
+        [HttpPatch("{id:int}")]
+        public async Task<ActionResult> PatchMovie(int id, JsonPatchDocument<Movie> patchDoc)
+        {
+            var movieById = await _db.Movie
+                .Include(m => m.Genres)
+                .Include(m => m.Actors)
+                .FirstOrDefaultAsync(m => m.Id == id);
+
+            if (movieById == null)
+            {
+                return NotFound();
+            }
+
+            foreach (var operation in patchDoc.Operations)
+            {
+                if (operation.path == "/actors/-" && operation.op == "add")
+                {
+                    var actorId = Convert.ToInt32(operation.value.ToString());
+
+                    var actor = await _db.Actor.FindAsync(actorId);
+
+                    if (actor == null)
+                    {
+                        return NotFound($"Actor with Id {actorId} not found.");
+                    }
+
+                    movieById.Actors.Add(actor);
+
+                    return Ok();
+                }
+                else if (operation.path == "/genres/-" && operation.op == "add")
+                {
+                    var actorId = Convert.ToInt32(operation.value.ToString());
+
+                    var actor = await _db.Actor.FindAsync(actorId);
+
+                    if (actor == null)
+                    {
+                        return NotFound($"Actor with Id {actorId} not found.");
+                    }
+
+                    movieById.Actors.Add(actor);
+
+                    return Ok();
+                }
+            }
+
+            await _db.SaveChangesAsync();
+
+            return NoContent();
+        }
+
         // POST: api/Movies
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Movie>> PostMovie(Movie movie)
+        public async Task<ActionResult<Movie>> PostMovie(NewMovieDto movie)
         {
-            _db.Movie.Add(movie);
-            await _db.SaveChangesAsync();
-
-            return CreatedAtAction("GetMovie", new { id = movie.Id }, movie);
+            var newMovie = _mapper.Map<Movie>(movie);
+            if(newMovie != null)
+            {
+                _db.Movie.Add(newMovie);
+                await _db.SaveChangesAsync();
+                return CreatedAtAction("GetMovie", new { id = newMovie.Id }, movie);
+            }
+            return BadRequest("Missing fields in movie object");
         }
 
         // DELETE: api/Movies/5

@@ -1,27 +1,23 @@
 ﻿using MovieApi.Validations;
 using System.ComponentModel.DataAnnotations;
-using System.IO;
 
-namespace MovieApi.Models.Entities
+namespace MovieApi.Models.Dtos
 {
-    public class Movie
+    public class NewMovieDto
     {
-        public int Id { get; set; }
-
+        [Required(ErrorMessage = "Title is required.")]
         public string Title { get; set; }
 
         public int Rating { get; set; }
 
+        [Required(ErrorMessage = "Release date is required in format yyyyMMdd.")]
+        [DateLimit]
         public int ReleaseDate { get; set; }
 
+        [Required(ErrorMessage = "Description is required.")]
         public string Description { get; set; }
 
+        [Required()]
         public int DirectorId { get; set; }
-
-        public Director Director { get; set; }
-
-        public ICollection<Actor> Actors { get; set; }
-
-        public ICollection<Genre> Genres { get; set; }
     }
 }
