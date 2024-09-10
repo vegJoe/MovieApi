@@ -6,6 +6,7 @@ namespace MovieApi.Models.Dtos
     public class NewMovieDto
     {
         [Required(ErrorMessage = "Title is required.")]
+        [TitleIsUnique]
         public string Title { get; set; }
         [Range(0, 10)]
         public int Rating { get; set; }
