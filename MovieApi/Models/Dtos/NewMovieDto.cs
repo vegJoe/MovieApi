@@ -7,7 +7,7 @@ namespace MovieApi.Models.Dtos
     {
         [Required(ErrorMessage = "Title is required.")]
         public string Title { get; set; }
-
+        [Range(0, 10)]
         public int Rating { get; set; }
 
         [Required(ErrorMessage = "Release date is required in format yyyyMMdd.")]
